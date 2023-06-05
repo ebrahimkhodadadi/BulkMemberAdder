@@ -1,15 +1,16 @@
-﻿using BulkMemberAdder.Domain;
+﻿
+using BulkMemberAdder.Domain;
 using BulkMemberAdder.Utility;
 using OpenQA.Selenium;
 using Spectre.Console;
 
 namespace BulkMemberAdder.Messangers.Eitaa.Pages
 {
-    public class GroupPage
+    public class ChannelPage
     {
         private readonly IWebDriver _driver;
 
-        public GroupPage(IWebDriver driver)
+        public ChannelPage(IWebDriver driver)
         {
             _driver = driver;
         }
@@ -17,26 +18,26 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
         public bool IsMenuBtnExist => new SeleniumUtils(_driver).IsElementPresent(By.CssSelector("#new-menu"));
         public IWebElement MenuBtn => _driver.FindElement(By.CssSelector("#new-menu"));
 
-        public IWebElement NewGroupBtn => _driver.FindElement(By.CssSelector(".tgico-newgroup"));
+        public IWebElement NewChannelBtn => _driver.FindElement(By.CssSelector(".tgico-newchannel"));
 
         public bool IsSearchContactTxtExist => new SeleniumUtils(_driver).IsElementPresent(By.CssSelector(".selector-search-input"));
         public IWebElement SearchContactTxt => _driver.FindElement(By.CssSelector(".selector-search-input"));
-
+      
         public bool IsContactAddBtnExist => new SeleniumUtils(_driver).IsElementPresent(By.XPath("/html/body/div[2]/div[1]/div[1]/div/div[2]/div[2]/div/div[2]/div/ul/li[1]"));
         public IWebElement ContactAddBtn => _driver.FindElement(By.XPath("/html/body/div[2]/div[1]/div[1]/div/div[2]/div[2]/div/div[2]/div/ul/li[1]"));
 
         public IWebElement SaveContacts => _driver.FindElement(By.CssSelector("button.btn-circle:nth-child(1)"));
 
-        public bool IsGroupNameTxtExist => new SeleniumUtils(_driver).IsElementPresent(By.CssSelector("div.input-field-input"));
-        public IWebElement GroupNameTxt => _driver.FindElement(By.CssSelector("div.input-field-input"));
-        public bool IsCreateGroupBtnExist => new SeleniumUtils(_driver).IsElementPresent(By.CssSelector("button.btn-circle:nth-child(2)"));
-        public IWebElement CreateGroupBtn => _driver.FindElement(By.CssSelector("button.btn-circle:nth-child(2)"));
+        public bool IsChannelNameTxtExist => new SeleniumUtils(_driver).IsElementPresent(By.XPath("/html/body/div[2]/div[1]/div[1]/div/div[2]/div[2]/div/div[2]/div[1]/div[1]"));
+        public IWebElement ChannelNameTxt => _driver.FindElement(By.XPath("/html/body/div[2]/div[1]/div[1]/div/div[2]/div[2]/div/div[2]/div[1]/div[1]"));
+        public bool IsCreateChannelBtnExist => new SeleniumUtils(_driver).IsElementPresent(By.XPath("/html/body/div[2]/div[1]/div[1]/div/div[2]/div[2]/button"));
+        public IWebElement CreateChannelBtn => _driver.FindElement(By.XPath("/html/body/div[2]/div[1]/div[1]/div/div[2]/div[2]/button"));
 
-        public void BulkImportToGroup(List<Member> members)
+        public void BulkImportToChannel(List<Member> members)
         {
             try
             {
-                AnsiConsole.Markup("Trying to Create group...\n");
+                AnsiConsole.Markup("Trying to Create channel...\n");
 
                 _driver.Navigate().Refresh();
 
@@ -47,7 +48,20 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
 
                 // open new group page
                 Thread.Sleep(1000);
-                NewGroupBtn.Click();
+                NewChannelBtn.Click();
+
+                var groupName = AnsiConsole.Ask<string>("What's The [green]channel[/] (channel will be created)?");
+
+                // set group name
+                while (!IsChannelNameTxtExist)
+                    Thread.Sleep(1);
+                ChannelNameTxt.Clear();
+                ChannelNameTxt.SendKeys(groupName);
+
+                // create channel
+                while (!IsCreateChannelBtnExist)
+                    Thread.Sleep(1);
+                CreateChannelBtn.Click();
 
                 while (!IsSearchContactTxtExist)
                     Thread.Sleep(1);
@@ -58,7 +72,6 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
                     {
                         var counter = 0;
                         var totallCount = members.DistinctBy(x => x.Mobile).Count();
-
                         foreach (var member in members.DistinctBy(x => x.Mobile))
                         {
                             AnsiConsole.MarkupLine($"import {member.Mobile}...");
@@ -70,16 +83,12 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
 
                                 Thread.Sleep(100);
                                 if (!IsContactAddBtnExist)
-                                {
                                     AnsiConsole.MarkupLine("[red]Contact doesn't Exist.[/]");
-                                    continue;
-                                }
 
-                                // select contact
                                 ContactAddBtn.Click();
 
                                 counter++;
-                                ctx.Status($"{counter} Contact of {totallCount} imported successfully");
+                                ctx.Status($"{counter} Contact of {totallCount} imported successfully"); 
                                 AnsiConsole.MarkupLine("[green]Successfully.[/]");
                             }
                             catch (Exception ex)
@@ -92,19 +101,6 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
                 // click to go create group
                 SaveContacts.Click();
 
-                var groupName = AnsiConsole.Ask<string>("What's The [green]Group name[/] (group will be created)?");
-
-                // set group name
-                while (!IsGroupNameTxtExist)
-                    Thread.Sleep(1);
-                GroupNameTxt.Clear();
-                GroupNameTxt.SendKeys(groupName);
-
-                // create channel
-                while (!IsCreateGroupBtnExist)
-                    Thread.Sleep(1);
-                CreateGroupBtn.Click();
-
                 AnsiConsole.Markup("* [green][[Create group with contacts finished!]][/]");
             }
             catch (Exception ex)
@@ -113,7 +109,7 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
                 AnsiConsole.WriteException(ex);
 
                 if (AnsiConsole.Confirm("\n Wanna try again?"))
-                    BulkImportToGroup(members);
+                    BulkImportToChannel(members);
 
                 throw;
             }

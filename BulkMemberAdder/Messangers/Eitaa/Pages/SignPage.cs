@@ -18,6 +18,7 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
         }
 
         public IWebElement LoginButton => _driver.FindElement(By.XPath("//*[@id=\"auth-pages\"]/div/div[2]/div[1]/div/div[3]/button"));
+        public bool IsPhoneFieldExist => new SeleniumUtils(_driver).IsElementPresent(By.XPath("//*[@id=\"auth-pages\"]/div/div[2]/div[1]/div/div[3]/div[2]/div[1]"));
         public IWebElement PhoneField => _driver.FindElement(By.XPath("//*[@id=\"auth-pages\"]/div/div[2]/div[1]/div/div[3]/div[2]/div[1]"));
         public IWebElement IsPhoneValid => _driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/div/div[3]/div[2]/label/span"));
 
@@ -61,7 +62,7 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
         {
             var phoneNumber = AnsiConsole.Ask<string>("What's your [green]phone number[/] for login in Eitaa? +98 ");
 
-            while (!PhoneField.Displayed)
+            while (!IsPhoneFieldExist)
                 Thread.Sleep(1);
             PhoneField.Clear();
             PhoneField.SendKeys($"+98{phoneNumber}");

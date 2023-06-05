@@ -14,10 +14,12 @@ public class Program
     {
         try
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.Clear();
 
-            if (args.Any())
-                return;
+            if (args is not null)
+                if (args.Any())
+                    return;
 
             PrintHelper();
 
@@ -44,9 +46,9 @@ public class Program
                 .LeftJustified()
                 .Color(Color.Red));
 
-        var rule = new Rule("[red]Helper[/]");
-        rule.Justification = Justify.Left;
-        AnsiConsole.Write(rule);
+        //var rule = new Rule("[red]Helper[/]");
+        //rule.Justification = Justify.Left;
+        //AnsiConsole.Write(rule);
 
         //TODO: print args
 

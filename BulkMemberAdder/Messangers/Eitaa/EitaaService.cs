@@ -2,6 +2,7 @@
 using BulkMemberAdder.Messangers.Eitaa.Pages;
 using BulkMemberAdder.Utility;
 using OpenQA.Selenium;
+using Spectre.Console;
 
 namespace BulkMemberAdder.Messangers.Eitaa
 {
@@ -17,7 +18,24 @@ namespace BulkMemberAdder.Messangers.Eitaa
 
             new ContactPage(_driver).BulkImportContacts(memberList);
 
-            new GroupPage(_driver).BulkImportToChannel(memberList);
+            // select channel or group type
+            var type = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("\nSelect the [green]Channle or Group[/] and Enter:")
+                    .AddChoices(new[] { "Group", "Channel", "ExistGroup" }));
+
+            switch (type)
+            {
+                case "Channel":
+                    new ChannelPage(_driver).BulkImportToChannel(memberList);
+                    break;
+                case "Group":
+                    new GroupPage(_driver).BulkImportToGroup(memberList);
+                    break;      
+                case "ExistGroup":
+                    new ExistGroupPage(_driver).BulkImportToExistGroup(memberList);
+                    break;
+            }
 
             Stop();
         }
