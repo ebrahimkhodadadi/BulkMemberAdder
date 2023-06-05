@@ -63,11 +63,11 @@ public class DriverFactory
                 throw new ArgumentOutOfRangeException();
         }
 
-#if DEBUG
-        driver.Manage().Window.Maximize();
-#else
+        //#if DEBUG
+        //        //driver.Manage().Window.Maximize();
+        //#else
         driver.Manage().Window.Minimize();
-#endif
+        //#endif
 
         var timeouts = driver.Manage().Timeouts();
 

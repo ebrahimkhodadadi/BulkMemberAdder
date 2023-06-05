@@ -14,6 +14,8 @@ public class Program
     {
         try
         {
+            Console.Clear();
+
             if (args.Any())
                 return;
 
@@ -159,14 +161,25 @@ public class Program
                 break;
         }
 
-        try
-        {
-            // start service
-            await messangerService.Start(memberList);
-        }
-        catch 
-        {
-            messangerService.Stop();
-        }
+        // start service
+        try { await messangerService.Start(memberList); }
+        catch { messangerService.Stop(); }
+
+        await ExistHelper();
+    }
+
+    private static async Task ExistHelper()
+    {
+        if (AnsiConsole.Confirm("\nJob finished want to try again?"))
+            await Main(null);
+
+        Console.Clear();
+
+        AnsiConsole.Write(
+            new FigletText("Good Luck!")
+                .Centered()
+                .Color(Color.Green));
+
+        Environment.Exit(0);
     }
 }

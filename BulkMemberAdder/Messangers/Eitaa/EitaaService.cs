@@ -17,7 +17,9 @@ namespace BulkMemberAdder.Messangers.Eitaa
 
             new ContactPage(_driver).BulkImportContacts(memberList);
 
-            new GroupPage(_driver).BulkImportToGroup(memberList);
+            new GroupPage(_driver).BulkImportToChannel(memberList);
+
+            Stop();
         }
 
 
@@ -30,12 +32,12 @@ namespace BulkMemberAdder.Messangers.Eitaa
                 //// Save the cookies in a file or database
                 //SaveCookies(cookies);
 
-#if DEBUG
-                Console.WriteLine("\nProccess finished.");
-#else
+                Console.WriteLine("\nProccess finished and Stoped.");
+                //#if DEBUG
+                //#else
                 _driver.Quit();
                 _driver.Close();
-#endif
+                //#endif
             }
             catch (Exception)
             {

@@ -60,7 +60,7 @@ namespace BulkMemberAdder.Messangers.Eitaa.Pages
                 AnsiConsole.Live(table)
                     .Start(ctx =>
                     {
-                        foreach (var member in members.Take(10))
+                        foreach (var member in members)
                         {
                             OpenAddContactPopUp();
 
