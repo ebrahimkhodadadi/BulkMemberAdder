@@ -1,5 +1,7 @@
 ﻿using Bogus;
 using BulkMemberAdder.Domain;
+using BulkMemberAdder.Messangers;
+using BulkMemberAdder.Messangers.Eitaa;
 using Newtonsoft.Json;
 using Spectre.Console;
 using System.Diagnostics;
@@ -22,7 +24,7 @@ public class Program
             var path = SetFilePath();
             var memberList = await ImportMembersByPath(path);
 
-            StartProccess(memberList);
+            await StartProccess(memberList);
         }
         catch (Exception ex)
         {
@@ -64,7 +66,7 @@ public class Program
         {
             var fakeData = Member.GenerateFakeMember();
 
-            var user = fakeData.GenerateBetween(0, 10);
+            var user = fakeData.GenerateBetween(5, 10);
 
             writer.WriteLine(JsonConvert.SerializeObject(user, Formatting.Indented));
         }
@@ -86,7 +88,7 @@ public class Program
 
             if (!File.Exists(path))
             {
-                AnsiConsole.Markup("\n[red][[Cannot find the file try again.]][/]");
+                AnsiConsole.Markup("[red][[Cannot find the file try again.]][/]\n");
                 return SetFilePath();
             }
 
@@ -102,7 +104,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("\nSomething went wrong while import file \n" + ex);
+            Console.WriteLine("\nSomething went wrong while import file \n");
             AnsiConsole.WriteException(ex);
 
             return SetFilePath();
@@ -127,7 +129,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("\nSomething went wrong while import members from file \n" + ex);
+            Console.WriteLine("\nSomething went wrong while import members from file \n");
             AnsiConsole.WriteException(ex);
 
             SetFilePath();
@@ -136,7 +138,7 @@ public class Program
     }
 
     // select messanger and start proccess
-    private static void StartProccess(List<Member> memberList)
+    private static async Task StartProccess(List<Member> memberList)
     {
         // select messanger
         var messagner = AnsiConsole.Prompt(
@@ -147,11 +149,24 @@ public class Program
                 }));
 
         Enum.TryParse(messagner, out MessangerEnum messagnerType);
+
+        IMessangerService messangerService = default;
+
         switch (messagnerType)
         {
             case MessangerEnum.Eitaa:
-                //TODO: impelemnt eitaa
+                messangerService = new EitaaService();
                 break;
+        }
+
+        try
+        {
+            // start service
+            await messangerService.Start(memberList);
+        }
+        catch 
+        {
+            messangerService.Stop();
         }
     }
 }
